@@ -128,7 +128,7 @@ select option{background:#151f1b}
         <span class="leg-item"><span class="leg-dot" style="background:#1e0f0f;border:1px solid #f87171"></span>Fully booked</span>
       </div>
       <div id="avail-note" style="font-size:.72rem;color:#3a5040;margin-top:8px">
-        &#9679; Availability: local schedule &bull; 2026-04-04 16:48
+        &#9679; Availability: local schedule &bull; 2026-04-04 17:13
       </div>
     </div>
 
@@ -163,7 +163,7 @@ select option{background:#151f1b}
   Trash Pandas Cleaners&nbsp;|&nbsp;214-878-8878&nbsp;|&nbsp;<a href="mailto:trashpandascleaners@gmail.com">trashpandascleaners@gmail.com</a><br>
   <small>All requests are reviewed and confirmed by our team.</small>
 </div>
-<div class="gen-note">Availability: local schedule &bull; Updated: 2026-04-04 16:48</div>
+<div class="gen-note">Availability: local schedule &bull; Updated: 2026-04-04 17:13</div>
 </div>
 
 <script>
@@ -203,16 +203,36 @@ function fetchLiveAvailability(cb) {
 
 // Wait for DOM to be ready before initializing
 document.addEventListener('DOMContentLoaded', function(){
-  var now=new Date(); now.setDate(now.getDate()+1);
-  calYear=now.getFullYear(); calMonth=now.getMonth();
-  renderDow();
-  renderCal();
-  fetchLiveAvailability(function() { renderCal(); });
+  try {
+    var now=new Date(); now.setDate(now.getDate()+1);
+    calYear=now.getFullYear(); calMonth=now.getMonth();
+    renderDow();
+    renderCal();
+    fetchLiveAvailability(function() { renderCal(); });
+  } catch(e) {
+    console.error('Calendar initialization error:', e);
+  }
 });
 
+// Fallback: try to render immediately if DOMContentLoaded already fired
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  try {
+    if (!document.getElementById('calTitle').textContent) {
+      var now=new Date(); now.setDate(now.getDate()+1);
+      calYear=now.getFullYear(); calMonth=now.getMonth();
+      renderDow();
+      renderCal();
+    }
+  } catch(e) {
+    console.error('Fallback calendar render error:', e);
+  }
+}
+
 function renderDow(){
+  var g=document.getElementById('calDow');
+  if (!g) { console.error('calDow element not found'); return; }
   var dow=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  var g=document.getElementById('calDow'); g.innerHTML='';
+  g.innerHTML='';
   dow.forEach(function(d){
     var e=document.createElement('div'); e.className='dow'; e.textContent=d; g.appendChild(e);
   });
@@ -228,7 +248,11 @@ function calNav(delta){
 function pad(n){return n<10?'0'+n:n;}
 
 function renderCal(){
-  var g=document.getElementById('calGrid'); g.innerHTML='';
+  var g=document.getElementById('calGrid');
+  var title=document.getElementById('calTitle');
+  if (!g) { console.error('calGrid element not found'); return; }
+  if (!title) { console.error('calTitle element not found'); return; }
+  g.innerHTML='';
   var months=['January','February','March','April','May','June',
               'July','August','September','October','November','December'];
   document.getElementById('calTitle').textContent=months[calMonth]+' '+calYear;
