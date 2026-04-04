@@ -203,16 +203,36 @@ function fetchLiveAvailability(cb) {
 
 // Wait for DOM to be ready before initializing
 document.addEventListener('DOMContentLoaded', function(){
-  var now=new Date(); now.setDate(now.getDate()+1);
-  calYear=now.getFullYear(); calMonth=now.getMonth();
-  renderDow();
-  renderCal();
-  fetchLiveAvailability(function() { renderCal(); });
+  try {
+    var now=new Date(); now.setDate(now.getDate()+1);
+    calYear=now.getFullYear(); calMonth=now.getMonth();
+    renderDow();
+    renderCal();
+    fetchLiveAvailability(function() { renderCal(); });
+  } catch(e) {
+    console.error('Calendar initialization error:', e);
+  }
 });
 
+// Fallback: try to render immediately if DOMContentLoaded already fired
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  try {
+    if (!document.getElementById('calTitle').textContent) {
+      var now=new Date(); now.setDate(now.getDate()+1);
+      calYear=now.getFullYear(); calMonth=now.getMonth();
+      renderDow();
+      renderCal();
+    }
+  } catch(e) {
+    console.error('Fallback calendar render error:', e);
+  }
+}
+
 function renderDow(){
+  var g=document.getElementById('calDow');
+  if (!g) { console.error('calDow element not found'); return; }
   var dow=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  var g=document.getElementById('calDow'); g.innerHTML='';
+  g.innerHTML='';
   dow.forEach(function(d){
     var e=document.createElement('div'); e.className='dow'; e.textContent=d; g.appendChild(e);
   });
@@ -228,7 +248,11 @@ function calNav(delta){
 function pad(n){return n<10?'0'+n:n;}
 
 function renderCal(){
-  var g=document.getElementById('calGrid'); g.innerHTML='';
+  var g=document.getElementById('calGrid');
+  var title=document.getElementById('calTitle');
+  if (!g) { console.error('calGrid element not found'); return; }
+  if (!title) { console.error('calTitle element not found'); return; }
+  g.innerHTML='';
   var months=['January','February','March','April','May','June',
               'July','August','September','October','November','December'];
   document.getElementById('calTitle').textContent=months[calMonth]+' '+calYear;
@@ -386,18 +410,7 @@ function submitForm(e){
       subject:'New Estimate Request — '+payload.fname+' '+payload.lname,
       from_name:payload.fname+' '+payload.lname,
       email:payload.email,
-      message:'Phone: '+payload.phone+'
-Address: '+payload.address+
-        '
-Service: '+payload.service+'
-Date: '+payload.pref_date+
-        ' at '+payload.pref_time+'
-Sq Ft: '+(payload.sqft||'N/A')+
-        '
-Pets: '+payload.pets+'
-Notes: '+(payload.notes||'None')+
-        '
-Source: '+payload.source
+      message:'Phone: '+payload.phone+'\\nAddress: '+payload.address+'\\nService: '+payload.service+'\\nDate: '+payload.pref_date+' at '+payload.pref_time+'\\nSq Ft: '+(payload.sqft||'N/A')+'\\nPets: '+payload.pets+'\\nNotes: '+(payload.notes||'None')+'\\nSource: '+payload.source
     };
     fetch('https://api.web3forms.com/submit',{
       method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
