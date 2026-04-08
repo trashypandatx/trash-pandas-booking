@@ -1,424 +1,143 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Request a Free In-Person Estimate — Trash Pandas Cleaners</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0f0d;color:#e2e8e4;min-height:100vh}
-.hero{background:linear-gradient(135deg,#1FC8B8 0%,#0a6b63 100%);padding:48px 24px;text-align:center}
-.hero img{width:160px;height:auto;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto}
-.hero h1{font-size:1.9rem;font-weight:800;color:#fff;margin-bottom:10px}
-.hero p{font-size:1rem;color:rgba(255,255,255,.88);max-width:520px;margin:0 auto}
-.container{max-width:740px;margin:0 auto;padding:32px 16px 60px}
-.card{background:#151f1b;border-radius:14px;border:1px solid #243028;padding:28px 32px;margin-bottom:20px}
-h2{color:#1FC8B8;font-size:1rem;font-weight:700;margin-bottom:18px;padding-bottom:8px;border-bottom:2px solid #1e3530;display:flex;align-items:center;gap:8px}
-label{display:block;font-weight:600;font-size:.82rem;color:#7eb8aa;margin-bottom:5px;margin-top:14px}
-input,select,textarea{width:100%;padding:11px 13px;border:1.5px solid #243028;border-radius:8px;font-size:.95rem;background:#0a0f0d;color:#e2e8e4;transition:border .2s}
-input:focus,select:focus,textarea:focus{border-color:#1FC8B8;outline:none}
-select option{background:#151f1b}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.req{color:#e85050}
-/* ── Calendar picker ── */
-.cal-wrap{margin-top:14px}
-.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.cal-nav button{background:#1e2e28;border:1px solid #2a3e36;color:#9eb8aa;border-radius:7px;padding:6px 14px;cursor:pointer;font-size:.9rem;transition:background .15s}
-.cal-nav button:hover{background:#243830;color:#1FC8B8}
-.cal-nav h3{font-size:1rem;font-weight:700;color:#e2e8e4}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.dow{text-align:center;font-size:.72rem;font-weight:700;color:#4a7060;padding:4px 0;text-transform:uppercase}
-.day-cell{border-radius:8px;min-height:54px;cursor:pointer;transition:all .15s;border:1.5px solid transparent;position:relative;padding:4px;display:flex;flex-direction:column}
-.day-cell.empty{cursor:default}
-.day-cell.past{background:#0d1510;cursor:not-allowed;opacity:.4}
-.day-cell.fully-booked{background:#1e0f0f;cursor:not-allowed;border-color:#4a1818}
-.day-cell.sunday{background:#0d1510;cursor:not-allowed;opacity:.35}
-.day-cell.open{background:#0d201a;border-color:#1a3830}
-.day-cell.open:hover{background:#122820;border-color:#1FC8B8;transform:translateY(-1px)}
-.day-cell.partial{background:#1e1a0a;border-color:#3a2e0a}
-.day-cell.partial:hover{background:#261f0a;border-color:#F0A030;transform:translateY(-1px)}
-.day-cell.selected{background:#0d3530 !important;border-color:#1FC8B8 !important;box-shadow:0 0 0 2px #1FC8B840}
-.day-num{font-size:.82rem;font-weight:700;padding:2px 4px}
-.day-cell.open .day-num{color:#e2e8e4}
-.day-cell.partial .day-num{color:#e2e8e4}
-.day-cell.past .day-num,.day-cell.sunday .day-num{color:#3a5040}
-.day-cell.fully-booked .day-num{color:#6a2020}
-.day-cell.today .day-num{color:#1FC8B8;font-weight:900}
-.slot-pills{display:flex;flex-wrap:wrap;gap:2px;margin-top:2px}
-.pill{font-size:.6rem;padding:1px 5px;border-radius:3px;font-weight:700;letter-spacing:.2px}
-.pill.open{background:#0d3020;color:#4ADE80}
-.pill.booked{background:#300d0d;color:#f87171}
-/* ── Selected date + time panel ── */
-.sel-panel{display:none;background:#0d2520;border:1.5px solid #1FC8B8;border-radius:10px;padding:18px 20px;margin-top:14px}
-.sel-panel.show{display:block}
-.sel-date{font-size:1rem;font-weight:700;color:#1FC8B8;margin-bottom:12px}
-.time-grid{display:flex;flex-wrap:wrap;gap:8px}
-.time-btn{padding:9px 16px;border-radius:7px;border:1.5px solid #1a3830;background:#0d201a;color:#9eb8aa;cursor:pointer;font-size:.88rem;font-weight:600;transition:all .15s}
-.time-btn:hover:not(.booked-slot){border-color:#1FC8B8;color:#1FC8B8;background:#0d2e28}
-.time-btn.selected-slot{background:#1FC8B8;color:#0a0f0d;border-color:#1FC8B8}
-.time-btn.booked-slot{background:#1a0d0d;color:#4a2020;border-color:#2a1515;cursor:not-allowed;text-decoration:line-through;opacity:.6}
-.sel-summary{margin-top:12px;font-size:.85rem;color:#7eb8aa}
-.sel-summary strong{color:#1FC8B8}
-/* ── Submit / misc ── */
-.btn{width:100%;padding:15px;background:linear-gradient(135deg,#1FC8B8,#0a6b63);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:20px;transition:opacity .2s}
-.btn:hover{opacity:.88}
-.btn:disabled{opacity:.4;cursor:not-allowed}
-.success{display:none;background:#0d2620;border:2px solid #1FC8B8;border-radius:12px;padding:32px;text-align:center}
-.success h3{color:#1FC8B8;font-size:1.5rem;margin-bottom:10px}
-.success p{color:#9eb8aa;line-height:1.6}
-.success a{color:#1FC8B8}
-.footer{text-align:center;color:#3a5040;font-size:.8rem;padding:20px}
-.footer a{color:#1FC8B8;text-decoration:none}
-.gen-note{text-align:center;color:#1e3530;font-size:.7rem;padding:4px 0}
-.legend{display:flex;gap:14px;margin-top:12px;flex-wrap:wrap}
-.leg-item{display:flex;align-items:center;gap:5px;font-size:.75rem;color:#7eb8aa}
-.leg-dot{width:10px;height:10px;border-radius:2px}
-@media(max-width:500px){.row2{grid-template-columns:1fr}.time-btn{padding:8px 12px;font-size:.82rem}}
-</style>
-</head>
-<body>
-<div class="hero">
-  <h1>🦝 Trash Pandas Cleaners</h1>
-  <p>Get an accurate quote from our team. Request a free in-person estimate and we'll come to you — no obligation.</p>
-</div>
-<div class="container">
-<div class="card" id="formCard">
-  <form id="bookingForm" onsubmit="submitForm(event)">
-
-    <h2>👤 Your Information</h2>
-    <div class="row2">
-      <div><label>First Name <span class="req">*</span></label><input type="text" id="fname" required placeholder="Jane"></div>
-      <div><label>Last Name <span class="req">*</span></label><input type="text" id="lname" required placeholder="Smith"></div>
-    </div>
-    <div class="row2">
-      <div><label>Email <span class="req">*</span></label><input type="email" id="email" required placeholder="jane@email.com"></div>
-      <div><label>Phone <span class="req">*</span></label><input type="tel" id="phone" required placeholder="(972) 555-0100"></div>
-    </div>
-    <label>Service Address <span class="req">*</span></label>
-    <input type="text" id="address" required placeholder="123 Oak St, Prosper TX 75078">
-
-    <h2 style="margin-top:24px">🧹 Estimate Details</h2>
-    <label>Estimate Type <span class="req">*</span></label>
-    <select id="service"><option>Standard Clean</option><option>Deep Clean</option><option>Move-In/Out</option><option>Post-Construction</option><option>Commercial Clean</option></select>
-    <div class="row2">
-      <div><label>Square Footage (approx.)</label><input type="number" id="sqft" placeholder="e.g. 1800" min="100" max="20000"></div>
-      <div><label>Pets in home?</label>
-        <select id="pets">
-          <option>No pets</option><option>Dogs</option><option>Cats</option>
-          <option>Dogs &amp; Cats</option><option>Other</option>
-        </select>
-      </div>
-    </div>
-
-    <h2 style="margin-top:24px">📅 Pick a Date &amp; Time <span class="req">*</span></h2>
-    <input type="hidden" id="pref_date">
-    <input type="hidden" id="pref_time">
-
-    <div class="cal-wrap">
-      <div class="cal-nav">
-        <button type="button" onclick="calNav(-1)">&#9664;</button>
-        <h3 id="calTitle"></h3>
-        <button type="button" onclick="calNav(1)">&#9654;</button>
-      </div>
-      <div class="cal-grid" id="calDow"></div>
-      <div class="cal-grid" id="calGrid" style="margin-top:4px"></div>
-      <div class="legend">
-        <span class="leg-item"><span class="leg-dot" style="background:#0d3020;border:1px solid #4ADE80"></span>Open slots</span>
-        <span class="leg-item"><span class="leg-dot" style="background:#1e1a0a;border:1px solid #F0A030"></span>Partially booked</span>
-        <span class="leg-item"><span class="leg-dot" style="background:#1e0f0f;border:1px solid #f87171"></span>Fully booked</span>
-      </div>
-      <div id="avail-note" style="font-size:.72rem;color:#3a5040;margin-top:8px">
-        &#9679; Availability: local schedule &bull; 2026-04-06 14:09
-      </div>
-    </div>
-
-    <div class="sel-panel" id="selPanel">
-      <div class="sel-date" id="selDateLabel"></div>
-      <div class="time-grid" id="timeGrid"></div>
-      <div class="sel-summary" id="selSummary"></div>
-    </div>
-
-    <label style="margin-top:20px">Special Requests / Notes</label>
-    <textarea id="notes" rows="3" placeholder="Gate code, areas of concern, special instructions..."></textarea>
-    <label>How did you hear about us?</label>
-    <select id="source">
-      <option>Google</option><option>Referral</option><option>Facebook</option>
-      <option>Nextdoor</option><option>Yelp</option><option>Other</option>
-    </select>
-
-    <button type="submit" class="btn" id="submitBtn" disabled>
-      📍 Request My Free Estimate
-    </button>
-  </form>
-</div>
-
-<div class="success" id="successMsg">
-  <h3>✅ Estimate Request Received!</h3>
-  <p>Thank you! We'll be in touch to confirm your appointment.<br><br>
-  Questions? Call <strong>214-878-8878</strong><br>
-  or email <a href="mailto:trashpandascleaners@gmail.com">trashpandascleaners@gmail.com</a></p>
-</div>
-
-<div class="footer">
-  Trash Pandas Cleaners&nbsp;|&nbsp;214-878-8878&nbsp;|&nbsp;<a href="mailto:trashpandascleaners@gmail.com">trashpandascleaners@gmail.com</a><br>
-  <small>All requests are reviewed and confirmed by our team.</small>
-</div>
-<div class="gen-note">Availability: local schedule &bull; Updated: 2026-04-06 14:09</div>
-</div>
-
-<script>
-var BOOKED      = {"2026-04-10": ["9:00 AM"], "2026-05-08": ["9:00 AM"], "2026-06-05": ["9:00 AM"], "2026-07-03": ["9:00 AM"]};
-var FULL_DAYS   = [];
-var ALL_SLOTS   = ["8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "1:00 PM", "2:00 PM", "3:00 PM"];
-var calYear, calMonth, selDate='', selTime='';
-var WORKER_URL  = 'https://trash-pandas-availability.trashpandascleaners.workers.dev';
-var liveLoaded  = false;
-
-function fetchLiveAvailability(cb) {
-  if (!WORKER_URL) { if (cb) cb(); return; }
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', WORKER_URL + '/availability', true);
-  xhr.timeout = 4000;
-  xhr.onload = function() {
-    if (xhr.status === 200) {
-      try {
-        var d = JSON.parse(xhr.responseText);
-        BOOKED    = d.booked    || BOOKED;
-        FULL_DAYS = d.full_days || FULL_DAYS;
-        ALL_SLOTS = d.all_slots || ALL_SLOTS;
-        liveLoaded = true;
-        var note = document.getElementById('avail-note');
-        if (note) { note.textContent = '● Live — synced with Google Calendar'; note.style.color='#4ADE80'; }
-      } catch(e) {}
-    }
-    if (cb) cb();
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Request a Free In-Person Estimate — Trash Pandas Cleaners</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0f0d;color:#e2e8e4;min-height:100vh}.hero{background:linear-gradient(135deg,#1FC8B8 0%,#0a6b63 100%);padding:48px 24px;text-align:center}.hero h1{font-size:1.9rem;font-weight:800;color:#fff;margin-bottom:10px}.hero p{font-size:1rem;color:rgba(255,255,255,.88);max-width:520px;margin:0 auto}.container{max-width:740px;margin:0 auto;padding:32px 16px 60px}.card{background:#151f1b;border-radius:14px;border:1px solid #243028;padding:28px 32px;margin-bottom:20px}h2{color:#1FC8B8;font-size:1rem;font-weight:700;margin-bottom:18px;padding-bottom:8px;border-bottom:2px solid #1e3530}label{display:block;font-weight:600;font-size:.82rem;color:#7eb8aa;margin-bottom:5px;margin-top:14px}input,select,textarea{width:100%;padding:11px 13px;border:1.5px solid #243028;border-radius:8px;font-size:.95rem;background:#0a0f0d;color:#e2e8e4;transition:border .2s}input:focus,select:focus,textarea:focus{border-color:#1FC8B8;outline:none}select option{background:#151f1b}.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.req{color:#e85050}.cal-wrap{margin-top:14px}.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.cal-nav button{background:#1e2e28;border:1px solid #2a3e36;color:#9eb8aa;border-radius:7px;padding:6px 14px;cursor:pointer;font-size:.9rem}.cal-nav button:hover{background:#243830;color:#1FC8B8}.cal-nav h3{font-size:1rem;font-weight:700;color:#e2e8e4}.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.dow{text-align:center;font-size:.72rem;font-weight:700;color:#4a7060;padding:4px 0;text-transform:uppercase}.day-cell{border-radius:8px;min-height:60px;cursor:pointer;border:1.5px solid transparent;padding:4px;display:flex;flex-direction:column}.day-cell.empty{cursor:default}.day-cell.past{background:#0d1510;cursor:not-allowed;opacity:.4}.day-cell.fully-booked{background:#1e0f0f;cursor:not-allowed;border-color:#4a1818}.day-cell.sunday{background:#0d1510;cursor:not-allowed;opacity:.35}.day-cell.open{background:#0d201a;border-color:#1a3830}.day-cell.open:hover{background:#122820;border-color:#1FC8B8}.day-cell.partial{background:#1e1a0a;border-color:#3a2e0a}.day-cell.partial:hover{background:#261f0a;border-color:#F0A030}.day-cell.selected{background:#0d3530!important;border-color:#1FC8B8!important;box-shadow:0 0 0 2px rgba(31,200,184,.25)}.day-cell.today .day-num{color:#1FC8B8;font-weight:900}.day-num{font-size:.82rem;font-weight:700;padding:2px 4px;color:#e2e8e4}.day-cell.past .day-num,.day-cell.sunday .day-num{color:#3a5040}.day-cell.fully-booked .day-num{color:#6a2020}.slot-pills{display:flex;flex-wrap:wrap;gap:2px;margin-top:2px}.pill{font-size:.6rem;padding:1px 5px;border-radius:3px;font-weight:700}.pill.open{background:#0d3020;color:#4ADE80}.pill.booked{background:#300d0d;color:#f87171}.legend{display:flex;gap:14px;margin-top:12px;flex-wrap:wrap}.leg-item{display:flex;align-items:center;gap:5px;font-size:.75rem;color:#7eb8aa}.leg-dot{width:10px;height:10px;border-radius:2px}.avail-note{font-size:.72rem;color:#3a5040;margin-top:8px}.sel-panel{display:none;background:#0d2520;border:1.5px solid #1FC8B8;border-radius:10px;padding:18px 20px;margin-top:14px}.sel-panel.show{display:block}.sel-date{font-size:1rem;font-weight:700;color:#1FC8B8;margin-bottom:12px}.time-grid{display:flex;flex-wrap:wrap;gap:8px}.time-btn{padding:9px 16px;border-radius:7px;border:1.5px solid #1a3830;background:#0d201a;color:#9eb8aa;cursor:pointer;font-size:.88rem;font-weight:600}.time-btn:hover:not(.booked-slot){border-color:#1FC8B8;color:#1FC8B8}.time-btn.selected-slot{background:#1FC8B8;color:#0a0f0d;border-color:#1FC8B8}.time-btn.booked-slot{background:#1a0d0d;color:#4a2020;border-color:#2a1515;cursor:not-allowed;opacity:.6}.sel-summary{margin-top:12px;font-size:.85rem;color:#7eb8aa}.btn{width:100%;padding:15px;background:linear-gradient(135deg,#1FC8B8,#0a6b63);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:20px}.btn:hover{opacity:.88}.btn:disabled{opacity:.4;cursor:not-allowed}.success{display:none;background:#0d2620;border:2px solid #1FC8B8;border-radius:12px;padding:32px;text-align:center}.success h3{color:#1FC8B8;font-size:1.5rem;margin-bottom:10px}.success p{color:#9eb8aa;line-height:1.6}.success a{color:#1FC8B8}.footer{text-align:center;color:#3a5040;font-size:.8rem;padding:20px}.footer a{color:#1FC8B8;text-decoration:none}@media(max-width:500px){.row2{grid-template-columns:1fr}.time-btn{padding:8px 12px}}</style></head><body><div class="hero"><h1>&#x1F99D; Trash Pandas Cleaners</h1><p>Get an accurate quote from our team. Request a free in-person estimate and we'll come to you — no obligation.</p></div><div class="container"><div class="card" id="formCard"><form id="bookingForm" onsubmit="submitForm(event)"><h2>&#x1F464; Your Information</h2><div class="row2"><div><label>First Name <span class="req">*</span></label><input type="text" id="fname" required placeholder="Jane"></div><div><label>Last Name <span class="req">*</span></label><input type="text" id="lname" required placeholder="Smith"></div></div><div class="row2"><div><label>Email <span class="req">*</span></label><input type="email" id="email" required placeholder="jane@email.com"></div><div><label>Phone <span class="req">*</span></label><input type="tel" id="phone" required placeholder="(972) 555-0100"></div></div><label>Service Address <span class="req">*</span></label><input type="text" id="address" required placeholder="123 Oak St, Prosper TX 75078"><h2 style="margin-top:24px">&#x1F9F9; Estimate Details</h2><label>Estimate Type <span class="req">*</span></label><select id="service"><option>Standard Clean</option><option>Deep Clean</option><option>Move-In/Out</option><option>Post-Construction</option><option>Commercial Clean</option></select><div class="row2"><div><label>Square Footage (approx.)</label><input type="number" id="sqft" placeholder="e.g. 1800" min="100" max="20000"></div><div><label>Pets in home?</label><select id="pets"><option>No pets</option><option>Dogs</option><option>Cats</option><option>Dogs &amp; Cats</option><option>Other</option></select></div></div><h2 style="margin-top:24px">&#x1F4C5; Pick a Date &amp; Time <span class="req">*</span></h2><input type="hidden" id="pref_date"><input type="hidden" id="pref_time"><div class="cal-wrap"><div class="cal-nav"><button type="button" onclick="calNav(-1)">&#9664;</button><h3 id="calTitle"></h3><button type="button" onclick="calNav(1)">&#9654;</button></div><div class="cal-grid" id="calDow"></div><div class="cal-grid" id="calGrid" style="margin-top:4px"></div><div class="legend"><span class="leg-item"><span class="leg-dot" style="background:#0d3020;border:1px solid #4ADE80"></span>Open</span><span class="leg-item"><span class="leg-dot" style="background:#1e1a0a;border:1px solid #F0A030"></span>Partial</span><span class="leg-item"><span class="leg-dot" style="background:#1e0f0f;border:1px solid #f87171"></span>Fully booked</span></div><div class="avail-note" id="avail-note">Availability: local schedule &bull; 2026-04-07 19:42</div></div><div class="sel-panel" id="selPanel"><div class="sel-date" id="selDateLabel"></div><div class="time-grid" id="timeGrid"></div><div class="sel-summary" id="selSummary"></div></div><label style="margin-top:20px">Special Requests / Notes</label><textarea id="notes" rows="3" placeholder="Gate code, areas of concern, special instructions..."></textarea><label>How did you hear about us?</label><select id="source"><option>Google</option><option>Referral</option><option>Facebook</option><option>Nextdoor</option><option>Yelp</option><option>Other</option></select><button type="submit" class="btn" id="submitBtn" disabled>&#x1F4CD; Request My Free Estimate</button></form></div><div class="success" id="successMsg"><h3>&#x2705; Request Received!</h3><p>Thank you! We will be in touch shortly.<br><br>Call: <strong>214-878-8878</strong><br>Email: <a href="mailto:trashpandascleaners@gmail.com">trashpandascleaners@gmail.com</a></p></div><div class="footer">Trash Pandas Cleaners&nbsp;|&nbsp;214-878-8878&nbsp;|&nbsp;<a href="mailto:trashpandascleaners@gmail.com">trashpandascleaners@gmail.com</a></div></div><script>var BOOKED={"2026-04-10": ["9:00 AM"], "2026-05-08": ["9:00 AM"], "2026-06-05": ["9:00 AM"], "2026-07-03": ["9:00 AM"]};
+var FULL_DAYS=[];
+var ALL_SLOTS=["8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "1:00 PM", "2:00 PM", "3:00 PM"];
+var calYear,calMonth,selDate='',selTime='';
+var WORKER_URL='https://trash-pandas-availability.trashpandascleaners.workers.dev';
+var W3KEY='1751f914-ab10-4c7d-9925-70dec46d0df3';
+var SUBMIT_URL=WORKER_URL?WORKER_URL+'/submit':'';
+function pad(n){return n<10?'0'+n:String(n);}
+function fetchLive(cb){
+  if(!WORKER_URL){if(cb)cb();return;}
+  var x=new XMLHttpRequest();
+  x.open('GET',WORKER_URL+'/availability',true);
+  x.timeout=4000;
+  x.onload=function(){
+    if(x.status===200){try{
+      var d=JSON.parse(x.responseText);
+      BOOKED=d.booked||BOOKED;
+      FULL_DAYS=d.full_days||FULL_DAYS;
+      ALL_SLOTS=d.all_slots||ALL_SLOTS;
+      var n=document.getElementById('avail-note');
+      if(n){n.textContent='Live - synced with Google Calendar';n.style.color='#4ADE80';}
+    }catch(e){}}if(cb)cb();
   };
-  xhr.onerror = xhr.ontimeout = function() {
-    var note = document.getElementById('avail-note');
-    if (note) { note.textContent = '○ Showing last-synced availability'; note.style.color='#9eb8aa'; }
-    if (cb) cb();
-  };
-  xhr.send();
+  x.onerror=x.ontimeout=function(){if(cb)cb();};
+  x.send();
 }
-
-// Wait for DOM to be ready before initializing
-document.addEventListener('DOMContentLoaded', function(){
-  var now=new Date(); now.setDate(now.getDate()+1);
-  calYear=now.getFullYear(); calMonth=now.getMonth();
-  renderDow();
-  renderCal();
-  fetchLiveAvailability(function() { renderCal(); });
-});
-
+(function(){
+  var now=new Date();now.setDate(now.getDate()+1);
+  calYear=now.getFullYear();calMonth=now.getMonth();
+  renderDow();fetchLive(function(){renderCal();});
+})();
 function renderDow(){
-  var dow=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  var g=document.getElementById('calDow'); g.innerHTML='';
-  dow.forEach(function(d){
-    var e=document.createElement('div'); e.className='dow'; e.textContent=d; g.appendChild(e);
+  var g=document.getElementById('calDow');g.innerHTML='';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d){
+    var e=document.createElement('div');e.className='dow';e.textContent=d;g.appendChild(e);
   });
 }
-
 function calNav(delta){
   calMonth+=delta;
   if(calMonth>11){calMonth=0;calYear++;}
-  if(calMonth<0) {calMonth=11;calYear--;}
+  if(calMonth<0){calMonth=11;calYear--;}
   renderCal();
 }
-
-function pad(n){return n<10?'0'+n:n;}
-
 function renderCal(){
-  var g=document.getElementById('calGrid'); g.innerHTML='';
-  var months=['January','February','March','April','May','June',
-              'July','August','September','October','November','December'];
-  document.getElementById('calTitle').textContent=months[calMonth]+' '+calYear;
-
-  var today=new Date(); today.setHours(0,0,0,0);
-  var tomorrow=new Date(today); tomorrow.setDate(today.getDate()+1);
-  var firstDay=new Date(calYear,calMonth,1).getDay(); // 0=Sun
-  var daysInMonth=new Date(calYear,calMonth+1,0).getDate();
-
-  // Empty leading cells
-  for(var i=0;i<firstDay;i++){
-    var e=document.createElement('div'); e.className='day-cell empty'; g.appendChild(e);
-  }
-
-  for(var d=1;d<=daysInMonth;d++){
+  var g=document.getElementById('calGrid');g.innerHTML='';
+  var mo=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calTitle').textContent=mo[calMonth]+'  '+calYear;
+  var today=new Date();today.setHours(0,0,0,0);
+  var tom=new Date(today);tom.setDate(today.getDate()+1);
+  var first=new Date(calYear,calMonth,1).getDay();
+  var dim=new Date(calYear,calMonth+1,0).getDate();
+  for(var i=0;i<first;i++){var e=document.createElement('div');e.className='day-cell empty';g.appendChild(e);}
+  for(var d=1;d<=dim;d++){
     var ds=calYear+'-'+pad(calMonth+1)+'-'+pad(d);
     var dt=new Date(calYear,calMonth,d);
     var cell=document.createElement('div');
     cell.dataset.date=ds;
-
-    var isSun=(dt.getDay()===0);
-    var isPast=dt<tomorrow;
-    var isFull=FULL_DAYS.indexOf(ds)>=0;
-    var isToday=dt.getTime()===today.getTime();
+    var sun=dt.getDay()===0,past=dt<tom,full=FULL_DAYS.indexOf(ds)>=0;
+    var istoday=dt.getTime()===today.getTime();
     var taken=BOOKED[ds]||[];
-    var openCount=ALL_SLOTS.filter(function(s){
-      return taken.indexOf(s)<0 && taken.indexOf(s.replace(/^0/,''))<0;
-    }).length;
-
-    if(isSun)       cell.className='day-cell sunday';
-    else if(isPast) cell.className='day-cell past';
-    else if(isFull) cell.className='day-cell fully-booked';
-    else if(taken.length>0 && openCount>0) cell.className='day-cell partial';
-    else            cell.className='day-cell open';
-
-    if(isToday) cell.className+=' today';
-    if(ds===selDate) cell.className+=' selected';
-
-    // Day number
-    var num=document.createElement('div');
-    num.className='day-num'; num.textContent=d; cell.appendChild(num);
-
-    // Slot pills (show up to 4)
-    if(!isSun && !isPast && ALL_SLOTS.length>0){
-      var pills=document.createElement('div'); pills.className='slot-pills';
+    var open=ALL_SLOTS.filter(function(s){return taken.indexOf(s)<0&&taken.indexOf(s.replace(/^0/,''))<0;}).length;
+    if(sun)cell.className='day-cell sunday';
+    else if(past)cell.className='day-cell past';
+    else if(full)cell.className='day-cell fully-booked';
+    else if(taken.length>0&&open>0)cell.className='day-cell partial';
+    else cell.className='day-cell open';
+    if(istoday)cell.className+=' today';
+    if(ds===selDate)cell.className+=' selected';
+    var num=document.createElement('div');num.className='day-num';num.textContent=d;cell.appendChild(num);
+    if(!sun&&!past&&ALL_SLOTS.length>0){
+      var pills=document.createElement('div');pills.className='slot-pills';
       ALL_SLOTS.slice(0,4).forEach(function(sl){
-        var norm=sl.replace(/^0/,'');
-        var isB=(taken.indexOf(sl)>=0||taken.indexOf(norm)>=0);
+        var norm=sl.replace(/^0/,''),isb=taken.indexOf(sl)>=0||taken.indexOf(norm)>=0;
         var p=document.createElement('span');
         var h=sl.replace(':00','').replace(' AM','a').replace(' PM','p').replace(/^0/,'');
-        p.className='pill '+(isB?'booked':'open');
-        p.textContent=h; pills.appendChild(p);
-      });
-      cell.appendChild(pills);
+        p.className='pill '+(isb?'booked':'open');p.textContent=h;pills.appendChild(p);
+      });cell.appendChild(pills);
     }
-
-    if(!isSun && !isPast && !isFull){
-      cell.addEventListener('click',function(){ selectDate(this.dataset.date); });
+    if(!sun&&!past&&!full){
+      (function(s){cell.addEventListener('click',function(){selectDate(s);});})(ds);
     }
     g.appendChild(cell);
   }
 }
-
 function selectDate(ds){
-  selDate=ds; selTime='';
+  selDate=ds;selTime='';
   document.getElementById('pref_date').value=ds;
   document.getElementById('pref_time').value='';
   document.getElementById('submitBtn').disabled=true;
-
-  // Update selected highlight
-  document.querySelectorAll('.day-cell').forEach(function(c){
-    c.classList.toggle('selected', c.dataset.date===ds);
-  });
-
-  // Format date label
+  document.querySelectorAll('.day-cell').forEach(function(c){c.classList.toggle('selected',c.dataset.date===ds);});
   var dt=new Date(ds+'T12:00:00');
   var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  var months=['January','February','March','April','May','June',
-              'July','August','September','October','November','December'];
-  document.getElementById('selDateLabel').textContent=
-    days[dt.getDay()]+', '+months[dt.getMonth()]+' '+dt.getDate()+', '+dt.getFullYear();
-
-  // Build time buttons
+  var mo=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('selDateLabel').textContent=days[dt.getDay()]+', '+mo[dt.getMonth()]+' '+dt.getDate()+', '+dt.getFullYear();
   var taken=BOOKED[ds]||[];
-  var tg=document.getElementById('timeGrid'); tg.innerHTML='';
+  var tg=document.getElementById('timeGrid');tg.innerHTML='';
   var hasOpen=false;
   ALL_SLOTS.forEach(function(sl){
-    var norm=sl.replace(/^0/,'');
-    var isB=(taken.indexOf(sl)>=0||taken.indexOf(norm)>=0);
-    var btn=document.createElement('button');
-    btn.type='button';
-    btn.textContent=isB? sl+' — Booked' : sl;
-    btn.className='time-btn'+(isB?' booked-slot':'');
-    if(!isB){
-      hasOpen=true;
-      btn.addEventListener('click',function(){selectTime(sl,this);});
-    }
+    var norm=sl.replace(/^0/,''),isb=taken.indexOf(sl)>=0||taken.indexOf(norm)>=0;
+    var btn=document.createElement('button');btn.type='button';
+    btn.textContent=isb?sl+' - Booked':sl;
+    btn.className='time-btn'+(isb?' booked-slot':'');
+    if(!isb){hasOpen=true;(function(s,b){b.addEventListener('click',function(){selectTime(s,b);});})(sl,btn);}
     tg.appendChild(btn);
   });
-
-  document.getElementById('selSummary').textContent=
-    hasOpen? 'Tap a time to select it.' : 'No slots available on this date.';
+  document.getElementById('selSummary').textContent=hasOpen?'Tap a time to select it.':'No slots on this date.';
   document.getElementById('selPanel').className='sel-panel show';
 }
-
 function selectTime(sl,btn){
   selTime=sl;
   document.getElementById('pref_time').value=sl;
-  document.querySelectorAll('.time-btn').forEach(function(b){
-    b.classList.remove('selected-slot');
-  });
+  document.querySelectorAll('.time-btn').forEach(function(b){b.classList.remove('selected-slot');});
   btn.classList.add('selected-slot');
-  document.getElementById('selSummary').innerHTML=
-    '&#10003; <strong>'+selDate+'</strong> at <strong>'+sl+'</strong> — tap submit below.';
+  document.getElementById('selSummary').innerHTML='Selected: <strong>'+selDate+'</strong> at <strong>'+sl+'</strong>';
   document.getElementById('submitBtn').disabled=false;
 }
-
-var W3KEY = '1751f914-ab10-4c7d-9925-70dec46d0df3';
-var SUBMIT_URL = WORKER_URL ? WORKER_URL+'/submit' : '';
-
 function submitForm(e){
   e.preventDefault();
   if(!selDate||!selTime){alert('Please select a date and time.');return;}
   var btn=document.getElementById('submitBtn');
-  btn.disabled=true; btn.textContent='Sending…';
-  var payload={
-    id:'bk_'+Date.now(),
+  btn.disabled=true;btn.textContent='Sending...';
+  var p={id:'bk_'+Date.now(),
     fname:document.getElementById('fname').value,
     lname:document.getElementById('lname').value,
     email:document.getElementById('email').value,
     phone:document.getElementById('phone').value,
     address:document.getElementById('address').value,
     service:document.getElementById('service').value,
-    pref_date:selDate,
-    pref_time:selTime,
+    pref_date:selDate,pref_time:selTime,
     sqft:document.getElementById('sqft').value||'',
     pets:document.getElementById('pets').value,
     notes:document.getElementById('notes').value||'',
     source:document.getElementById('source').value,
-    submitted:new Date().toISOString(),
-    status:'Pending'
-  };
-  // Try Worker submit first (saves directly to CRM), then Web3Forms, then JSON download
-  function tryWorker(){
-    if(!SUBMIT_URL) { tryW3Forms(); return; }
-    fetch(SUBMIT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-      .then(function(r){return r.json();})
-      .then(function(d){ if(d.ok) showSuccess(); else tryW3Forms(); })
-      .catch(tryW3Forms);
+    submitted:new Date().toISOString(),status:'Pending'};
+  function done(){document.getElementById('formCard').style.display='none';document.getElementById('successMsg').style.display='block';window.scrollTo(0,0);}
+  function dl(){var b=new Blob([JSON.stringify([p],null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='booking_'+p.id+'.json';a.click();done();}
+  function w3(){if(!W3KEY){dl();return;}
+    var msg='Phone: '+p.phone+'\nAddress: '+p.address+'\nService: '+p.service+'\nDate: '+p.pref_date+' at '+p.pref_time+'\nSqFt: '+(p.sqft||'N/A')+'\nPets: '+p.pets+'\nNotes: '+(p.notes||'None')+'\nSource: '+p.source;
+    fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({access_key:W3KEY,subject:'New Estimate - '+p.fname+' '+p.lname,from_name:p.fname+' '+p.lname,email:p.email,message:msg})})
+    .then(function(r){return r.json();}).then(function(d){if(d.success)done();else dl();}).catch(dl);
   }
-  function tryW3Forms(){
-    if(!W3KEY) { fallbackDownload(); return; }
-    var w3={
-      access_key:W3KEY,
-      subject:'New Estimate Request — '+payload.fname+' '+payload.lname,
-      from_name:payload.fname+' '+payload.lname,
-      email:payload.email,
-      message:'Phone: '+payload.phone+'
-Address: '+payload.address+
-        '
-Service: '+payload.service+'
-Date: '+payload.pref_date+
-        ' at '+payload.pref_time+'
-Sq Ft: '+(payload.sqft||'N/A')+
-        '
-Pets: '+payload.pets+'
-Notes: '+(payload.notes||'None')+
-        '
-Source: '+payload.source
-    };
-    fetch('https://api.web3forms.com/submit',{
-      method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify(w3)
-    })
-    .then(function(r){return r.json();})
-    .then(function(d){ if(d.success) showSuccess(); else fallbackDownload(); })
-    .catch(fallbackDownload);
-  }
-  function fallbackDownload(){
-    var blob=new Blob([JSON.stringify([payload],null,2)],{type:'application/json'});
-    var a=document.createElement('a');a.href=URL.createObjectURL(blob);
-    a.download='booking_'+payload.id+'.json';a.click();
-    showSuccess();
-  }
-  function showSuccess(){
-    document.getElementById('formCard').style.display='none';
-    document.getElementById('successMsg').style.display='block';
-    window.scrollTo(0,0);
-  }
-  tryWorker();
-}
-</script>
-</body></html>
+  if(SUBMIT_URL){fetch(SUBMIT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}).then(function(r){return r.json();}).then(function(d){if(d.ok)done();else w3();}).catch(w3);}else{w3();}
+}</script></body></html>
